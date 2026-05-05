@@ -1,46 +1,159 @@
-<?php
-session_start();
-
-if (!isset($_SESSION['login'])) {
-    header("Location: index.php");
-    exit;
-}
-?>
 <!DOCTYPE html>
 <html>
 <head>
     <title>Dashboard E-Makh</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css">
+
+<style>
+
+/* ================= GLOBAL ================= */
+body {
+    background: linear-gradient(120deg, #eef2ff, #f8fafc);
+}
+
+/* ================= NAVBAR ================= */
+.navbar {
+    background: linear-gradient(90deg, #4f46e5, #6366f1);
+    box-shadow: 0 6px 20px rgba(79,70,229,0.2);
+}
+
+/* ================= TITLE ================= */
+.page-title {
+    text-align: center;
+    font-weight: 800;
+    font-size: 28px;
+    color: #3730a3;
+    margin-bottom: 30px;
+}
+
+/* ================= CAROUSEL ================= */
+.custom-carousel {
+    max-width: 420px;
+    margin: auto;
+    position: relative;
+}
+
+/* ================= CARD (PORTRAIT) ================= */
+.santri-card {
+    background: linear-gradient(145deg, #ffffff, #eef2ff);
+    border-radius: 28px;
+    padding: 30px 20px 50px;
+    text-align: center;
+    height: 420px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 20px 60px rgba(15,23,42,0.15);
+}
+.santri-card {
+    padding: 50px 20px 40px;
+    height: 440px;
+    justify-content: space-between;
+}
+
+/* BAGIAN ATAS */
+.santri-card h5 {
+    margin-top: 20px; /* turun dikit */
+    margin-bottom: 4px;
+}
+
+.santri-card p {
+    margin-bottom: 20px;
+}
+
+/* TEXT */
+.santri-card h5 {
+    font-weight: 800;
+    color: #3730a3;
+}
+.santri-card > div:first-child {
+    margin-top: 30px;
+}
+.point-badge {
+    background: linear-gradient(90deg, #6366f1, #818cf8);
+    color: white;
+    border-radius: 50px;
+    padding: 6px 18px;
+}
+
+/* BUTTON */
+.btn-danger {
+    background: linear-gradient(135deg, #ef4444, #b91c1c);
+    border: none;
+    border-radius: 999px;
+}
+
+/* ================= SLIDE INDICATOR (BAWAH) ================= */
+.slide-indicator-bottom {
+    margin-top: 15px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+}
+
+/* ================= ARROW ================= */
+.carousel-control-prev,
+.carousel-control-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50px;
+    height: 50px;
+}
+
+/* POSISI */
+.carousel-control-prev { left: -80px; }
+.carousel-control-next { right: -80px; }
+
+/* SQUARE STYLE */
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
+    width: 50px;
+    height: 50px;
+    border-radius: 12px; /* ini bikin kotak rounded, bukan bulat */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ICON */
+.carousel-control-prev-icon::after {
+    content: '‹';
+    color: white;
+    font-size: 26px;
+    font-weight: bold;
+}
+
+.carousel-control-next-icon::after {
+    content: '›';
+    color: white;
+    font-size: 26px;
+    font-weight: bold;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .carousel-control-prev { left: 5px; }
+    .carousel-control-next { right: 5px; }
+}
+
+</style>
 </head>
+
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container">
-        <a class="navbar-brand fw-bold" href="#">E-Makh</a>
+        <span class="navbar-brand fw-bold">E-Makh</span>
 
         <div class="d-flex gap-2">
-            <a href="atur-santri.php" 
-              style="
-                    text-decoration: none;
-                    background: linear-gradient(135deg, #4f46e5, #6366f1);
-                    color: white;
-                    padding: 8px 16px;
-                    border-radius: 10px;
-                    font-size: 14px;
-                    font-weight: 600;
-                    display: inline-block;
-                    transition: all 0.3s ease;
-                    box-shadow: 0 4px 12px rgba(79,70,229,0.3);
-              "
-              onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 6px 18px rgba(79,70,229,0.5)'"
-              onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 12px rgba(79,70,229,0.3)'">
-              ⚙️ Atur Santri
+            <a href="atur-santri.php" class="btn btn-light btn-sm fw-semibold">
+                ⚙️ Atur Santri
             </a>
-            <a href="logout.php"
-               onclick="return confirm('Yakin ingin logout?')"
-               class="btn btn-danger btn-sm">
-               Logout
+            <a href="logout.php" class="btn btn-danger btn-sm">
+                Logout
             </a>
         </div>
     </div>
@@ -49,12 +162,9 @@ if (!isset($_SESSION['login'])) {
 <div class="container mt-4">
     <h4 class="page-title">Tambah Poin Pelanggaran</h4>
 
-    <div id="carouselSantri" class="carousel slide custom-carousel">        
-      <div class="carousel-inner" id="carouselData" data-bs-ride="carousel" data-bs-interval="3000" data-bs-pause="hover">
-            <!-- DATA API -->
-        </div>
-
-        
+    <div class="custom-carousel">
+      <div id="carouselSantri" class="carousel slide">        
+        <div class="carousel-inner" id="carouselData"></div>
 
         <button class="carousel-control-prev" type="button"
             data-bs-target="#carouselSantri" data-bs-slide="prev">
@@ -65,51 +175,61 @@ if (!isset($_SESSION['login'])) {
             data-bs-target="#carouselSantri" data-bs-slide="next">
             <span class="carousel-control-next-icon"></span>
         </button>
+      </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
+
+// MANUAL CAROUSEL (NO AUTO SLIDE)
+new bootstrap.Carousel('#carouselSantri', {
+  interval: false,
+  ride: false,
+  wrap: false
+});
+
 fetch('http://localhost/project-software/api/pelanggaran/get.php')
   .then(res => res.json())
   .then(data => {
 
     let html = '';
 
-    if (data.length === 0) {
-      html = `
-        <div class="text-center mt-4">
-          <h5>Tidak ada data siswa</h5>
-        </div>
-      `;
-    } else {
-      // Tampilkan semua santri, satu per slide, tanpa gambar profil
-      data.forEach((item, index) => {
-        html += `
-          <div class="carousel-item${index === 0 ? ' active' : ''}">
-            <div class="card santri-card text-center p-3">
-              <h5>${item.nama_siswa ?? '-'}</h5>
-              <p>Kelas: ${item.kelas ?? '-'}</p>
-              <span class="badge bg-danger point-badge mb-3">
-                Total Poin: ${item.poin ?? 0}
+    data.forEach((item, index) => {
+      html += `
+        <div class="carousel-item ${index === 0 ? 'active' : ''}">
+          <div class="santri-card">
+
+            <div>
+              <h5>${item.nama_siswa}</h5>
+              <p>Kelas: ${item.kelas}</p>
+            </div>
+
+            <div>
+              <span class="badge point-badge">
+                Total Poin: ${item.poin}
               </span>
-              <a href="tambah-pelanggaran.php?id=${item.id_siswa}" class="btn btn-danger">
+            </div>
+
+            <div>
+              <a href="tambah-pelanggaran.php?id=${item.id_siswa}" class="btn btn-danger w-100">
                 Tambah Poin
               </a>
+
+              <div class="slide-indicator-bottom">
+                ${index + 1} / ${data.length}
+              </div>
             </div>
+
           </div>
-        `;
-      });
-    }
+        </div>
+      `;
+    });
 
     document.getElementById('carouselData').innerHTML = html;
-  })
-  .catch(err => {
-    console.error(err);
-    document.getElementById('carouselData').innerHTML =
-      "<h5 class='text-center'>Gagal ambil data</h5>";
   });
+
 </script>
 
 </body>
