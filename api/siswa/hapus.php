@@ -1,8 +1,31 @@
 <?php
 include "../../config/koneksi.php";
 
-$id = $_POST['id'];
+header("Content-Type: application/json");
 
-mysqli_query($conn, "DELETE FROM siswa WHERE id_siswa='$id'");
+$id = $_POST['id'] ?? null;
 
-echo json_encode(["status" => "deleted"]);
+// VALIDASI
+if (!$id) {
+    echo json_encode([
+        "status" => "error",
+        "message" => "ID tidak dikirim"
+    ]);
+    exit;
+}
+
+// QUERY DELETE
+$result = mysqli_query($conn, "DELETE FROM siswa WHERE id_siswa='$id'");
+
+// CEK HASIL
+if ($result && mysqli_affected_rows($conn) > 0) {
+    echo json_encode([
+        "status" => "success",
+        "message" => "Berhasil dihapus"
+    ]);
+} else {
+    echo json_encode([
+        "status" => "error",
+        "message" => "Gagal hapus / ID tidak ditemukan"
+    ]);
+}

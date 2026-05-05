@@ -1,16 +1,15 @@
 <?php
 include "../config/koneksi.php";
 
-// AMBIL ID DARI URL
+// ================= AMBIL ID ================= //
 $id_siswa = $_GET['id'] ?? null;
 
-// VALIDASI ID
 if (!$id_siswa) {
     echo "<script>alert('Akses tidak valid'); window.location='dashboard.php';</script>";
     exit;
 }
 
-// CEK APAKAH ID ADA DI DATABASE
+// ================= CEK SISWA ================= //
 $cek = mysqli_query($conn, "SELECT * FROM siswa WHERE id_siswa='$id_siswa'");
 $siswa = mysqli_fetch_assoc($cek);
 
@@ -19,19 +18,48 @@ if (!$siswa) {
     exit;
 }
 
-// PROSES SIMPAN
+// ================= PROSES SIMPAN ================= //
 if (isset($_POST['simpan'])) {
 
-    $id = $_POST['id_siswa'];
-    $jenis = $_POST['jenis'];
-    $poin = $_POST['poin'];
-    $date = date("Y-m-d");
+    $id    = $_POST['id_siswa'] ?? null;
+    $jenis = trim($_POST['jenis'] ?? '');
+    $poin  = $_POST['poin'] ?? null;
+    $date  = date("Y-m-d");
 
-    // VALIDASI INPUT
-    if (!$id || !$jenis || !$poin) {
+    // ===== VALIDASI DASAR ===== //
+    if (!$id || $jenis === '') {
         echo "<script>alert('Data tidak lengkap');</script>";
     } else {
 
+        // ===== VALIDASI POIN ===== //
+
+        // 1. wajib diisi
+        if ($poin === null || $poin === '') {
+            echo "<script>alert('Poin wajib diisi');</script>";
+            exit;
+        }
+
+        // 2. harus angka
+        if (!is_numeric($poin)) {
+            echo "<script>alert('Poin harus angka');</script>";
+            exit;
+        }
+
+        $poin = (int)$poin;
+
+        // 3. tidak boleh <= 0
+        if ($poin <= 0) {
+            echo "<script>alert('Poin harus lebih dari 0');</script>";
+            exit;
+        }
+
+        // 4. batas maksimal
+        if ($poin > 100) {
+            echo "<script>alert('Poin maksimal 100');</script>";
+            exit;
+        }
+
+        // ===== INSERT ===== //
         $insert = mysqli_query($conn, "
             INSERT INTO pelanggaran (id_siswa, jenis_pelanggaran, poin, date)
             VALUES ('$id', '$jenis', '$poin', '$date')
