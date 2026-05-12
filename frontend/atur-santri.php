@@ -325,72 +325,135 @@ function openEditModal(id, nama, kelas) {
 
 function openHapusModal(id, nama) {
     document.getElementById('hapusSantriId').value = id;
-    document.getElementById('hapusSantriNama').textContent = `${nama}`;
+    document.getElementById('hapusSantriNama').textContent = nama;
     hapusModal.show();
 }
 
+// ================= LOAD DATA =================
 function loadData() {
-    fetch('../api/siswa/get.php')
-        .then(response => response.json())
-        .then(data => {
-            let html = '';
 
-            if (!data.length) {
-                html = `
-                    <tr>
-                        <td colspan="3" class="text-center py-4 text-muted">Belum ada santri. Tambahkan data santri di sini.</td>
-                    </tr>
-                `;
-            } else {
-                data.forEach(item => {
-                    html += `
-                        <tr>
-                            <td>${item.nama_siswa}</td>
-                            <td>${item.kelas}</td>
-                            <td class="d-flex gap-2 flex-wrap">
-                                <button class="btn btn-warning btn-sm btn-action" onclick='openEditModal(${item.id_siswa}, ${JSON.stringify(item.nama_siswa)}, ${JSON.stringify(item.kelas)})'>Edit</button>
-                                <button class="btn btn-danger btn-sm btn-action" onclick='openHapusModal(${item.id_siswa}, ${JSON.stringify(item.nama_siswa)})'>Hapus</button>
-                            </td>
-                        </tr>
-                    `;
-                });
-            }
+    fetch('../api/siswa/get.php', {
+        credentials: 'include'
+    })
 
-            document.getElementById('dataSantri').innerHTML = html;
-        })
-        .catch(() => {
-            document.getElementById('dataSantri').innerHTML = `
+    .then(response => response.json())
+
+    .then(response => {
+
+        // AMBIL DATA ARRAY
+        const data = response.data;
+
+        let html = '';
+
+        // VALIDASI DATA KOSONG
+        if (!data || data.length === 0) {
+
+            html = `
                 <tr>
-                    <td colspan="3" class="text-center py-4 text-danger">Gagal memuat data. Periksa koneksi API.</td>
+                    <td colspan="3" class="text-center py-4 text-muted">
+                        Belum ada santri. Tambahkan data santri di sini.
+                    </td>
                 </tr>
             `;
-        });
+
+        } else {
+
+            data.forEach(item => {
+
+                html += `
+                    <tr>
+                        <td>${item.nama_siswa}</td>
+
+                        <td>${item.kelas}</td>
+
+                        <td class="d-flex gap-2 flex-wrap">
+
+                            <button 
+                                class="btn btn-warning btn-sm btn-action"
+
+                                onclick='openEditModal(
+                                    ${item.id_siswa},
+                                    ${JSON.stringify(item.nama_siswa)},
+                                    ${JSON.stringify(item.kelas)}
+                                )'>
+                                Edit
+                            </button>
+
+                            <button 
+                                class="btn btn-danger btn-sm btn-action"
+
+                                onclick='openHapusModal(
+                                    ${item.id_siswa},
+                                    ${JSON.stringify(item.nama_siswa)}
+                                )'>
+                                Hapus
+                            </button>
+
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        document.getElementById('dataSantri').innerHTML = html;
+    })
+
+    .catch(error => {
+
+        console.log(error);
+
+        document.getElementById('dataSantri').innerHTML = `
+            <tr>
+                <td colspan="3" class="text-center py-4 text-danger">
+                    Gagal memuat data. Periksa koneksi API.
+                </td>
+            </tr>
+        `;
+    });
 }
 
+// ================= TAMBAH =================
 function submitTambahSantri(event) {
+
     event.preventDefault();
 
     const nama = document.getElementById('namaSantri').value.trim();
     const kelas = document.getElementById('kelasSantri').value.trim();
 
     if (!nama || !kelas) {
+        alert('Nama dan kelas wajib diisi');
         return;
     }
 
     fetch('../api/siswa/tambah.php', {
+
         method: 'POST',
+
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
         },
+
         body: `nama=${encodeURIComponent(nama)}&kelas=${encodeURIComponent(kelas)}`
     })
-        .then(() => {
+
+    .then(response => response.json())
+
+    .then(response => {
+
+        alert(response.message);
+
+        if (response.status === 'success') {
             tambahModal.hide();
             loadData();
-        });
+        }
+    })
+
+    .catch(error => console.log(error));
 }
 
+// ================= EDIT =================
 function submitEditSantri(event) {
+
     event.preventDefault();
 
     const id = document.getElementById('editIdSantri').value;
@@ -398,44 +461,89 @@ function submitEditSantri(event) {
     const kelas = document.getElementById('editKelasSantri').value.trim();
 
     if (!id || !nama || !kelas) {
+        alert('Data tidak lengkap');
         return;
     }
 
     fetch('../api/siswa/update.php', {
+
         method: 'POST',
+
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
         },
-        body: `id=${encodeURIComponent(id)}&nama=${encodeURIComponent(nama)}&kelas=${encodeURIComponent(kelas)}`
+
+        body: `
+            id=${encodeURIComponent(id)}
+            &nama=${encodeURIComponent(nama)}
+            &kelas=${encodeURIComponent(kelas)}
+        `
     })
-        .then(() => {
+
+    .then(response => response.json())
+
+    .then(response => {
+
+        alert(response.message);
+
+        if (response.status === 'success') {
             editModal.hide();
             loadData();
-        });
+        }
+    })
+
+    .catch(error => console.log(error));
 }
 
+// ================= HAPUS =================
 function confirmHapusSantri() {
+
     const id = document.getElementById('hapusSantriId').value;
 
     if (!id) return;
 
     fetch('../api/siswa/hapus.php', {
+
         method: 'POST',
+
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
         },
+
         body: `id=${encodeURIComponent(id)}`
     })
-        .then(() => {
+
+    .then(response => response.json())
+
+    .then(response => {
+
+        alert(response.message);
+
+        if (response.status === 'success') {
             hapusModal.hide();
             loadData();
-        });
+        }
+    })
+
+    .catch(error => console.log(error));
 }
 
-document.getElementById('formTambahSantri').addEventListener('submit', submitTambahSantri);
-document.getElementById('formEditSantri').addEventListener('submit', submitEditSantri);
-document.getElementById('confirmHapusButton').addEventListener('click', confirmHapusSantri);
+// ================= EVENT =================
+document
+    .getElementById('formTambahSantri')
+    .addEventListener('submit', submitTambahSantri);
+
+document
+    .getElementById('formEditSantri')
+    .addEventListener('submit', submitEditSantri);
+
+document
+    .getElementById('confirmHapusButton')
+    .addEventListener('click', confirmHapusSantri);
+
+// ================= LOAD AWAL =================
 loadData();
+
 </script>
 
 </body>

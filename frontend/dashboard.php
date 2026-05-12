@@ -183,7 +183,7 @@ body {
 
 <script>
 
-// MANUAL CAROUSEL (NO AUTO SLIDE)
+// MANUAL CAROUSEL
 new bootstrap.Carousel('#carouselSantri', {
   interval: false,
   ride: false,
@@ -192,11 +192,27 @@ new bootstrap.Carousel('#carouselSantri', {
 
 fetch('http://localhost/project-software/api/pelanggaran/get.php')
   .then(res => res.json())
-  .then(data => {
+  .then(response => {
+
+    // AMBIL ARRAY DATA
+    const data = response.data;
 
     let html = '';
 
+    // VALIDASI
+    if (!data || data.length === 0) {
+      html = `
+        <div class="text-center mt-5">
+          <h5>Tidak ada data siswa</h5>
+        </div>
+      `;
+
+      document.getElementById('carouselData').innerHTML = html;
+      return;
+    }
+
     data.forEach((item, index) => {
+
       html += `
         <div class="carousel-item ${index === 0 ? 'active' : ''}">
           <div class="santri-card">
@@ -213,7 +229,8 @@ fetch('http://localhost/project-software/api/pelanggaran/get.php')
             </div>
 
             <div>
-              <a href="tambah-pelanggaran.php?id=${item.id_siswa}" class="btn btn-danger w-100">
+              <a href="tambah-pelanggaran.php?id=${item.id_siswa}" 
+                 class="btn btn-danger w-100">
                 Tambah Poin
               </a>
 
@@ -228,6 +245,15 @@ fetch('http://localhost/project-software/api/pelanggaran/get.php')
     });
 
     document.getElementById('carouselData').innerHTML = html;
+  })
+  .catch(err => {
+      console.log(err);
+
+      document.getElementById('carouselData').innerHTML = `
+        <div class="text-center mt-5">
+          <h5>Gagal mengambil data</h5>
+        </div>
+      `;
   });
 
 </script>
